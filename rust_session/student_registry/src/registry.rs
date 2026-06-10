@@ -53,20 +53,26 @@ impl Registry {
     }
 
     pub fn update(&mut self, id: u32, student: Student) {
-        match self.students.iter_mut().find(|s| s.id == id) {
-            Some(s30) => {
-                *s = student;
-            }
-            None => println!("Student with ID {} not found", id),
-        }
-    }
+        let Some(s) = self.students.iter().find(|s| s.id == id) else {
+            println!("Student with ID {} not found", id);
+            return;
+        };
 
-    pub fn update_by_index(&mut self, index: usize, student: Student) {
-        match self.students.get_mut(index) {
+        if student.name == s.name
+            && student.age == s.age
+            && student.grade == s.grade
+            && student.score == s.score
+        {
+            println!("No updates found, cannot make update.");
+            return;
+        }
+
+        match self.students.iter_mut().find(|s| s.id == id) {
             Some(s) => {
                 *s = student;
+                println!("Student with ID {} updated", id);
             }
-            None => println!("Student at index {} not found", index),
+            None => println!("Student with ID {} not found", id),
         }
     }
 
