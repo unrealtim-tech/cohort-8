@@ -1,26 +1,27 @@
 use crate::grade::{Grade, Sex};
-use crate::student_struct::Student;
+use crate::student_struct_uuid::Student;
+// use crate::student_struct_uuid::Students;
+use uuid::Uuid;
 
 #[derive(Debug)]
 pub struct Registry {
     pub students: Vec<Student>,
-    next_id: u32,
+    next_id: Uuid,
 }
 
 impl Registry {
     pub fn new() -> Self {
         Registry {
             students: Vec::new(),
-            next_id: 0,
+            next_id: Uuid::new_v4(),
         }
     }
 
     pub fn add(&mut self, name: &str, age: u8, sex: Sex, grade: Grade, score: f32) {
-        let id = self.next_id;
-        let student = Student::new(id, name.to_string(), age, sex, grade, score);
+        let student = Student::new(name.to_string(), age, sex, grade, score);
         println!("Added: {} (ID {})", student.name, student.id);
         self.students.push(student);
-        self.next_id += 1;
+        self.next_id = Uuid::new_v4();
     }
 
     pub fn list_all(&self) {
@@ -29,13 +30,13 @@ impl Registry {
             return;
         }
         println!(
-            "  {:>5}  {:<20}  {:<6}  {:<10}  {}",
+            "  {:>20}  {:<20}  {:<6}  {:<10}  {}",
             "ID", "Name", "Age", "Grade", "Score"
         );
-        println!("  {}", "-".repeat(55));
+        println!("  {}", "-".repeat(85));
         for student in &self.students {
             println!(
-                "  {:>5}  {:<20}  {:>6}  {:<10}  {:.1}",
+                "  {:>20}  {:<20}  {:>6}  {:<10}  {:.1}",
                 student.id,
                 student.name,
                 student.age,
@@ -45,16 +46,16 @@ impl Registry {
         }
     }
 
-    pub fn find_student_by_id(&self, id: u32) -> Option<&Student> {
+    pub fn find_student_by_id(&self, id: Uuid) -> Option<&Student> {
         match self.students.iter().find(|s| s.id == id) {
             Some(s) => Some(s),
             None => None,
         }
     }
 
-    pub fn update(&mut self, id: u32, student: Student) {
+    pub fn update(&mut self, id: Uuid, student: Student) {
         match self.students.iter_mut().find(|s| s.id == id) {
-            Some(s30) => {
+            Some(s) => {
                 *s = student;
             }
             None => println!("Student with ID {} not found", id),
@@ -70,9 +71,8 @@ impl Registry {
         }
     }
 
-    pub fn delete(&mut self, id: u32) {
+    pub fn delete(&mut self, id: Uuid) {
         let position = self.students.iter().position(|s| s.id == id);
-
         match position {
             Some(position_index) => {
                 self.students.remove(position_index);
